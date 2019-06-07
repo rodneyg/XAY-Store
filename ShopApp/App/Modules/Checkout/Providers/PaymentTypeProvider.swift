@@ -1,0 +1,42 @@
+//
+//  PaymentTypeProvider.swift
+//  ShopApp
+//
+//  Created by Evgeniy Antonov on 2/1/18.
+//  Copyright © 2018 RubyGarage. All rights reserved.
+//
+
+import UIKit
+
+protocol PaymentTypeProviderDelegate: class {
+    func provider(_ provider: PaymentTypeProvider, didSelect type: PaymentType)
+}
+
+class PaymentTypeProvider: NSObject, UITableViewDataSource, UITableViewDelegate {
+    var selectedPaymentType: PaymentType?
+    
+    weak var delegate: PaymentTypeProviderDelegate?
+    
+    // MARK: - UITableViewDataSource
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return PaymentType.allValues.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell: PaymentTypeTableViewCell = tableView.dequeueReusableCellForIndexPath(indexPath)
+        let type = PaymentType(rawValue: indexPath.row)!
+        let selected = selectedPaymentType == type
+        cell.configure(with: type, selected: selected)
+        return cell
+    }
+    
+    // MARK: - UITableViewDelegate
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let delegate = delegate, let type = PaymentType(rawValue: indexPath.row) else {
+            return
+        }
+        delegate.provider(self, didSelect: type)
+    }
+}
